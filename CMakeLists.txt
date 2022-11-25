@@ -8,7 +8,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake;${CMAKE_MODULE_PATH}")
 
 project(ixwebsocket C CXX)
 
-set (CMAKE_CXX_STANDARD 11)
+enable_language(C)
+enable_language(CXX)
+
+set (CMAKE_CXX_STANDARD 17)
 set (CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_EXTENSIONS OFF)
 set (CMAKE_EXPORT_COMPILE_COMMANDS yes)
@@ -20,7 +23,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 if (UNIX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -206,13 +209,16 @@ if (USE_TLS)
 
     # This OPENSSL_FOUND check is to help find a cmake manually configured OpenSSL
     if (NOT OPENSSL_FOUND)
-      find_package(OpenSSL REQUIRED)
+      # find_package(OpenSSL REQUIRED)
     endif()
     message(STATUS "OpenSSL: " ${OPENSSL_VERSION})
 
+    add_subdirectory("third_party/boringssl")
+    set(OPENSSL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/third_party/boringssl/include)
+
     add_definitions(${OPENSSL_DEFINITIONS})
     target_include_directories(ixwebsocket PUBLIC $<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIR}>)
-    target_link_libraries(ixwebsocket PRIVATE ${OPENSSL_LIBRARIES})
+    target_link_libraries(ixwebsocket PRIVATE ssl)
   elseif (USE_MBED_TLS)
     message(STATUS "TLS configured to use mbedtls")
 
